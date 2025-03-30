@@ -1,0 +1,79 @@
+--SLeba Maksym IK-32
+--1.Відобразіть всі можливі комбінації товарів та виробників
+SELECT goods.name AS Товар, manufacturers.name AS Виробник
+FROM goods
+CROSS JOIN manufacturers;
+
+--2.Відобразіть пари колег – працівників, що мають одного й того ж начальника
+SELECT w1.last_name || ' ' || w1.first_name AS Працівник1,
+       w2.last_name || ' ' || w2.first_name AS Працівник2,
+       w1.chief AS Начальник
+FROM workers w1
+JOIN workers w2 ON w1.chief = w2.chief
+WHERE w1.passport_no < w2.passport_no; -- Щоб уникнути дублювання пар
+
+--3.Відобразіть дані про виробника кожного з товарів
+SELECT goods.name AS Товар, manufacturers.name AS Виробник, manufacturers.address AS Адреса
+FROM goods
+JOIN manufacturers ON goods.manufacturer_code = manufacturers.code;
+
+--4.Відобразіть інформацію про подружні пари серед працівників
+SELECT h.last_name || ' ' || h.first_name AS Чоловік,
+       w.last_name || ' ' || w.first_name AS Дружина
+FROM marriage
+JOIN workers h ON marriage.husband_passport_no = h.passport_no
+JOIN workers w ON marriage.wife_passport_no = w.passport_no;
+
+--5.Відобразіть дані про те, які товари на яких складах зберігаються
+SELECT warehouses.name AS Склад, goods.name AS Товар, holds.amount AS Кількість
+FROM holds
+JOIN goods ON holds.goods_code = goods.code
+JOIN warehouses ON holds.warehouse_code = warehouses.code;
+
+--6.Для кожного складу відобразіть ПІБ його керівника
+SELECT warehouses.name AS Склад,
+       workers.last_name || ' ' || workers.first_name AS Керівник
+FROM warehouses
+JOIN workers ON warehouses.chief_passport_no = workers.passport_no;
+
+--7. Відобразіть дані про товари, що наявні в кількості принаймні 15 одиниць хоча б на одному зі складів
+SELECT goods.name AS Товар, warehouses.name AS Склад, holds.amount AS Кількість
+FROM holds
+JOIN goods ON holds.goods_code = goods.code
+JOIN warehouses ON holds.warehouse_code = warehouses.code
+WHERE holds.amount >= 15;
+
+--8. Відобразіть дані про те, які товари на яких складах зберігаються (повтор 5-го завдання)
+SELECT warehouses.name AS Склад, goods.name AS Товар, holds.amount AS Кількість
+FROM holds
+JOIN goods ON holds.goods_code = goods.code
+JOIN warehouses ON holds.warehouse_code = warehouses.code;
+
+--9. Відобразіть всю інформацію про товари, які зберігаються на складах мережі супермаркетів (мене проблема з цим пунктом)
+SELECT goods.*
+FROM goods
+JOIN delivered ON goods.code = delivered.goods_code;
+
+--10. Відобразіть всю інформацію про товари, які НЕ зберігаються на складах мережі супермаркетів
+SELECT goods.*
+FROM goods
+LEFT JOIN delivered ON goods.code = delivered.goods_code
+WHERE delivered.goods_code IS NULL;
+
+--11. Відобразіть всю інформацію про неодружених працівників
+SELECT workers.*
+FROM workers
+LEFT JOIN marriage ON workers.passport_no = marriage.husband_passport_no
+                  OR workers.passport_no = marriage.wife_passport_no
+WHERE marriage.husband_passport_no IS NULL AND marriage.wife_passport_no IS NULL;
+
+--12. Відобразіть всю інформацію про працівників, які НЕ керують складами
+SELECT workers.*
+FROM workers
+LEFT JOIN warehouses ON workers.passport_no = warehouses.chief_passport_no
+WHERE warehouses.chief_passport_no IS NULL;
+
+
+
+
+
